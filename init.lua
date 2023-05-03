@@ -84,10 +84,10 @@ require("lazy").setup({
     },
     'nvim-lua/plenary.nvim', -- Useful lua functions used by lots of plugins
     'neovim/nvim-lspconfig',
-    'williamboman/mason.nvim',
+    { 'williamboman/mason.nvim', priority = 150 },
     {
         'williamboman/mason-lspconfig.nvim',
-        lazy = true,
+        priority = 100,
         config = function()
             --  Add any additional override configuration in the following tables. They will be passed to
             --  the `settings` field of the server config. You must look up that documentation yourself.
@@ -165,6 +165,7 @@ require("lazy").setup({
                 ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded' }),
             }
 
+            require("mason").setup()
             require('mason-lspconfig').setup {
                 ensure_installed = vim.tbl_keys(servers),
             }
@@ -186,6 +187,7 @@ require("lazy").setup({
     {
         'rest-nvim/rest.nvim',
         lazy = true,
+        event = "VeryLazy",
         config = function()
             require("rest-nvim").setup({
                 -- Open request results in a horizontal split
@@ -232,7 +234,7 @@ require("lazy").setup({
             end
             treesitter.setup {
                 -- A list of parser names, or "all"
-                ensure_installed = { "c", "cpp", "lua", "rust", "vim", "help" },
+                ensure_installed = { "c", "cpp", "lua", "rust", "vim" },
 
                 -- Install parsers synchronously (only applied to `ensure_installed`)
                 sync_install = false,
@@ -263,6 +265,7 @@ require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
         lazy = true,
+        cmd = "Telescope",
         config = function()
             local telescope_status_ok, telescope = pcall(require, "telescope")
             if not telescope_status_ok then
@@ -282,10 +285,11 @@ require("lazy").setup({
             }
         end
     },
-    { 'antoinemadec/FixCursorHold.nvim', lazy = true }, -- This is needed to fix lsp doc highlight
+    { 'antoinemadec/FixCursorHold.nvim', lazy = true, event = "VeryLazy" }, -- This is needed to fix lsp doc highlight
     {
         'nvim-lualine/lualine.nvim',
         lazy = true,
+        event = "VeryLazy",
         config = function()
             local ll_status_ok, lualine = pcall(require, "lualine")
             if not ll_status_ok then
@@ -376,10 +380,11 @@ require("lazy").setup({
             })
         end
     },
-    { 'numToStr/Comment.nvim',           lazy = true, config = true },
+    { 'numToStr/Comment.nvim',  config = true },
     {
         'lewis6991/gitsigns.nvim',
         lazy = true,
+        event = "VeryLazy",
         config = function()
             local gitsigns_status_ok, gitsigns = pcall(require, "gitsigns")
             if not gitsigns_status_ok then
@@ -454,6 +459,7 @@ require("lazy").setup({
     {
         'folke/todo-comments.nvim',
         lazy = true,
+        event = "VeryLazy",
         config = function()
             local todo_status_ok, todo = pcall(require, "todo-comments")
             if not todo_status_ok then
