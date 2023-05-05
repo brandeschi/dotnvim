@@ -689,7 +689,9 @@ keymap('n', '<C-k>', '<C-W>k', opts)
 keymap('n', '<C-l>', '<C-W>l', opts)
 
 keymap('n', '<Leader>wr', '<C-W>r', opts)
-keymap("n", "<Leader>e", ":Lex<CR>", opts)
+keymap("n", "<Leader>e", vim.cmd.Lex, opts)
+keymap('n', 'n', 'nzzzv')
+keymap('n', 'N', 'Nzzzv')
 
 -- Rest.nvim
 keymap("n", "<Leader>rr", "<CMD>lua require('rest-nvim').run()<CR>", opts)
@@ -706,9 +708,13 @@ keymap("n", "<Leader>n", ":silent Gitsigns next_hunk<CR>", opts)
 -- TODO: Expand how I use this
 --
 -- Telescope
--- keymap("n", "<Leader>ff", "<cmd>Telescope find_files<CR>", opts)
-keymap("n", "<Leader>ff", "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{ previewer = false, winblend = 20 })<CR>", opts)
-keymap("n", "<Leader>gg", "<cmd>Telescope live_grep<CR>", opts)
+-- keymap("n", "<Leader>ff", "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{ previewer = false, winblend = 20 })<CR>", opts)
+keymap("n", "<leader>ff",
+    "<cmd>lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({ previewer = false, borderchars = {{ '─', '│', '─', '│', '┌', '┐', '┘', '└'}, prompt = {'─', '│', ' ', '│', '┌', '┐', '│', '│'}, results = {'─', '│', '─', '│', '├', '┤', '┘', '└'}, preview = { '─', '│', '─', '│', '┌', '┐', '┘', '└'},}, prompt_title = false }))<cr>"
+    , opts)
+keymap("n", "<Leader>gg",
+    "<cmd>lua require'telescope.builtin'.live_grep(require('telescope.themes').get_dropdown({ previewer = false, borderchars = {{ '─', '│', '─', '│', '┌', '┐', '┘', '└'}, prompt = {'─', '│', ' ', '│', '┌', '┐', '│', '│'}, results = {'─', '│', '─', '│', '├', '┤', '┘', '└'}, preview = { '─', '│', '─', '│', '┌', '┐', '┘', '└'},}, prompt_title = false }))<cr>"
+    , opts)
 keymap("n", "<Leader>gs", "<cmd>Telescope grep_string<CR>", opts)
 
 -- C-bindings
