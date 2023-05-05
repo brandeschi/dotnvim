@@ -27,6 +27,7 @@ vim.g.mapleader = " "
 
 set.clipboard = "unnamed"
 set.formatoptions = set.formatoptions + "c,r,o"
+set.nrformats = set.nrformats + "alpha"
 set.tabstop = 4
 set.softtabstop = 4
 set.shiftwidth = 4
@@ -169,11 +170,11 @@ require("lazy").setup({
             require('mason-lspconfig').setup {
                 ensure_installed = vim.tbl_keys(servers),
             }
-            -- local capabilities = require('cmp_nvim_lsp').default_capabilities()
+            local capabilities = require('cmp_nvim_lsp').default_capabilities()
             require('mason-lspconfig').setup_handlers {
                 function(server_name)
                     require('lspconfig')[server_name].setup({
-                        -- capabilities = capabilities,
+                        capabilities = capabilities,
                         on_attach = on_attach,
                         settings = servers[server_name],
                         handlers = handlers,
@@ -182,7 +183,50 @@ require("lazy").setup({
             }
         end
     },
-    'jose-elias-alvarez/null-ls.nvim',
+    'MunifTanjim/prettier.nvim',
+    {'jose-elias-alvarez/null-ls.nvim',
+        config = function()
+            local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+            local null_ls = require("null-ls")
+            null_ls.setup({
+                sources = {
+                    null_ls.builtins.formatting.prettierd,
+                    null_ls.builtins.code_actions.eslint_d,
+                    null_ls.builtins.formatting.black
+                },
+                on_attach = function(client, bufnr)
+                    if client.supports_method("textDocument/formatting") then
+                        vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+                        vim.api.nvim_create_autocmd("BufWritePre", {
+                            group = augroup,
+                            buffer = bufnr,
+                            callback = function()
+                                vim.lsp.buf.format()
+                            end,
+                        })
+                    end
+                end,
+            })
+            -- Prettier
+            require("prettier").setup({
+                bin = 'prettierd',
+                filetypes = {
+                    "css",
+                    "graphql",
+                    "html",
+                    "javascript",
+                    "javascriptreact",
+                    "typescript",
+                    "typescriptreact",
+                    "json",
+                    "less",
+                    "markdown",
+                    "scss",
+                    "yaml",
+                }
+            })
+    end
+    },
     'jay-babu/mason-null-ls.nvim',
     {
         'rest-nvim/rest.nvim',
@@ -235,16 +279,12 @@ require("lazy").setup({
             treesitter.setup {
                 -- A list of parser names, or "all"
                 ensure_installed = { "c", "cpp", "lua", "rust", "vim" },
-
                 -- Install parsers synchronously (only applied to `ensure_installed`)
                 sync_install = false,
-
                 -- Automatically install missing parsers when entering buffer
                 auto_install = true,
-
                 -- List of parsers to ignore installing (for "all")
                 ignore_install = { "" },
-
                 highlight = {
                     -- `false` will disable the whole extension
                     enable = true,
@@ -365,6 +405,13 @@ require("lazy").setup({
                     lualine_b = { mode },
                     lualine_c = { "filename" },
                     lualine_x = { lsp_active, spaces },
+                    lualine_y = {
+                        {
+                            require("lazy.status").updates,
+                            cond = require("lazy.status").has_updates,
+                            color = { fg = "#ff9e64" },
+                        },
+                    },
                     lualine_z = { location, progress },
                 },
                 inactive_sections = {
@@ -573,10 +620,12 @@ require("lazy").setup({
                         end
                     end, { "i", "s" }),
                     ["<S-Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visable() then
-                            cmp.select_prev_item()
-                        else
-                            fallback()
+                        if not cmp.select_prev_item() then
+                            if has_words_before() then
+                                cmp.complete()
+                            else
+                                fallback()
+                            end
                         end
                     end, { "i", "s" }),
                 },
@@ -657,7 +706,8 @@ keymap("n", "<Leader>n", ":silent Gitsigns next_hunk<CR>", opts)
 -- TODO: Expand how I use this
 --
 -- Telescope
-keymap("n", "<Leader>ff", "<cmd>Telescope find_files<CR>", opts)
+-- keymap("n", "<Leader>ff", "<cmd>Telescope find_files<CR>", opts)
+keymap("n", "<Leader>ff", "<cmd>lua require('telescope.builtin').find_files(require('telescope.themes').get_dropdown{ previewer = false, winblend = 20 })<CR>", opts)
 keymap("n", "<Leader>gg", "<cmd>Telescope live_grep<CR>", opts)
 keymap("n", "<Leader>gs", "<cmd>Telescope grep_string<CR>", opts)
 
@@ -679,7 +729,6 @@ keymap('v', '>', '>gv', opts)
 keymap("v", "J", ":m '>+1<CR>gv=gv")
 keymap("v", "K", ":m '<-2<CR>gv=gv")
 
--- keymap('v', 'p', '"_dP', opts)
 -- Keep paste/delete buffer clean
 keymap("x", "<leader>p", [["_dP]])
 keymap({ "n", "v" }, "<leader>y", [["+y]])
