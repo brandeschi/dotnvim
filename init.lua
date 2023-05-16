@@ -79,6 +79,7 @@ require("lazy").setup({
         'brandeschi/medieval.nvim',
         lazy = false,
         priority = 1000,
+        dev = true,
         config = function()
             vim.cmd("colorscheme medieval")
         end,
@@ -642,6 +643,7 @@ require("lazy").setup({
     { 'AlexvZyl/nordic.nvim',  lazy = true,  config = true },
 }, {
     defaults = { lazy = false, version = nil },
+    dev = { path = "C:/dev" },
     checker = { enabled = true },
     performance = {
         rtp = {
