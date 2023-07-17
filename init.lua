@@ -645,7 +645,7 @@ require("lazy").setup({
 }, {
     defaults = { lazy = false, version = nil },
     dev = { path = "C:/dev" },
-    checker = { enabled = true },
+    checker = { enabled = false },
     performance = {
         rtp = {
             -- disable some rtp plugins
