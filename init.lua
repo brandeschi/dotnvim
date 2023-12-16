@@ -35,7 +35,8 @@ set.expandtab = true
 set.completeopt = { "menu", "menuone" }
 set.mouse = "a"
 set.guicursor = ""
-set.guifont = "JetBrainsMono NF:h16"
+set.guifont = "JetBrainsMono NF:h14"
+-- set.guifont = "Cartograph CF:h14"
 set.number = true
 set.autoindent = true
 set.smartindent = true
@@ -155,6 +156,7 @@ require("lazy").setup({
                 -- Disable diags for clangd since it sucks at unity builds currently
                 if client.name == 'clangd' then
                     vim.diagnostic.disable()
+                    set.makeprg = ".\\build %:p:h"
                 end
                 if client.name == 'tsserver' then
                     vim.cmd("setl tabstop=2")
@@ -725,7 +727,7 @@ keymap("n", "<Leader>gs", "<cmd>Telescope grep_string<CR>", opts)
 -- C-bindings
 keymap('n', '<Leader>cs', ':ClangdSwitchSourceHeader<CR>', opts)
 -- Build cmd -- Need to get this to find the build.bat file and run it!
-keymap('n', '<Leader>bb', ':!.\\build %:p:h<CR>', opts)
+keymap('n', '<Leader>bb', '<CMD>make<CR>', opts)
 -- Run EXE
 keymap('n', '<Leader>br', ':silent !C:\\dev\\exec %:p:h<CR>', opts)
 -- Launch debugger
