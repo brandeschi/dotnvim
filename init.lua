@@ -28,15 +28,15 @@ vim.g.mapleader = " "
 set.clipboard = "unnamed"
 set.formatoptions = set.formatoptions + "c,r,o"
 set.nrformats = set.nrformats + "alpha"
-set.tabstop = 4
-set.softtabstop = 4
-set.shiftwidth = 4
+set.tabstop = 2
+set.softtabstop = 2
+set.shiftwidth = 2
 set.expandtab = true
 set.completeopt = { "menu", "menuone" }
+set.pumheight = 5
 set.mouse = "a"
 set.guicursor = ""
 set.guifont = "JetBrainsMono NF:h14"
--- set.guifont = "Cartograph CF:h14"
 set.number = true
 set.autoindent = true
 set.smartindent = true
@@ -76,13 +76,39 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 
 -- Plugins
 require("lazy").setup({
+    -- {
+    --     'brandeschi/medieval.nvim',
+    --     lazy = false,
+    --     priority = 1000,
+    --     dev = true,
+    --     config = function()
+    --         vim.cmd("colorscheme medieval")
+    --     end,
+    -- },
     {
-        'brandeschi/medieval.nvim',
+        'arcticicestudio/nord-vim',
         lazy = false,
         priority = 1000,
-        dev = true,
         config = function()
-            vim.cmd("colorscheme medieval")
+          vim.api.nvim_create_augroup('nord-theme-overrides', {
+            clear = true
+          })
+          vim.api.nvim_create_autocmd('ColorScheme', {
+            callback = function()
+              vim.api.nvim_set_hl(0, "@keyword.repeat", { fg = "#EBCB8B" })
+              vim.api.nvim_set_hl(0, "@keyword.conditional", { fg = "#EBCB8B" })
+              vim.api.nvim_set_hl(0, "@keyword.directive", { fg = "#EBCB8B" })
+              vim.api.nvim_set_hl(0, "@keyword.operator", { fg = "#88C0D0" })
+              vim.api.nvim_set_hl(0, "@tag.builtin", { fg = "#88C0D0" })
+              vim.api.nvim_set_hl(0, "@tag.delimiter", { fg = "#ECEFF4" })
+              vim.api.nvim_set_hl(0, "@tag.attribute", { fg = "#5E81AC" })
+              vim.api.nvim_set_hl(0, "@tag", { fg = "#8FBCBB" })
+              vim.api.nvim_set_hl(0, "@lsp.type.property", { fg = "#5E81AC" })
+              vim.api.nvim_set_hl(0, "Constant", { fg = "#B48EAD" })
+              vim.api.nvim_set_hl(0, "TodoFgNOTE", { fg = "#4C566A" })
+            end
+          })
+          vim.cmd.colorscheme('nord')
         end,
     },
     'nvim-lua/plenary.nvim', -- Useful lua functions used by lots of plugins
@@ -98,7 +124,19 @@ require("lazy").setup({
                 -- pyright = {},
                 -- rust_analyzer = {},
                 tsserver = {},
-                clangd = {},
+                clangd = {
+                    cmd = {
+                        "clangd",
+                        "--background-index",
+                        "--pch-storage=memory",
+                        "--all-scopes-completion",
+                        "--pretty",
+                        "--header-insertion=never",
+                        "-j=4",
+                        "--function-arg-placeholders",
+                        "--completion-style=detailed"
+                    },
+                },
                 lua_ls = {
                     Lua = {
                         workspace = { checkThirdParty = false },
@@ -109,6 +147,7 @@ require("lazy").setup({
                         }
                     },
                 },
+                gopls = {},
             }
             --  This function gets run when an LSP connects to a particular buffer.
             local on_attach = function(client, bufnr)
@@ -157,11 +196,6 @@ require("lazy").setup({
                 if client.name == 'clangd' then
                     vim.diagnostic.disable()
                     set.makeprg = ".\\build %:p:h"
-                end
-                if client.name == 'tsserver' then
-                    vim.cmd("setl tabstop=2")
-                    vim.cmd("setl softtabstop=2")
-                    vim.cmd("setl shiftwidth=2")
                 end
             end
             local handlers = {
@@ -587,6 +621,7 @@ require("lazy").setup({
             })
         end
     },
+    { "dcampos/nvim-snippy" },
     {
         "hrsh7th/nvim-cmp",
         -- load cmp on InsertEnter
@@ -596,6 +631,7 @@ require("lazy").setup({
         dependencies = {
             "hrsh7th/cmp-nvim-lsp",
             "hrsh7th/cmp-buffer",
+            "dcampos/cmp-snippy"
         },
         config = function()
             local has_words_before = function()
@@ -604,6 +640,8 @@ require("lazy").setup({
                 return col ~= 0 and
                     vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
             end
+
+            local snippy = require("snippy")
             local cmp = require('cmp')
             cmp.setup({
                 preselect = cmp.PreselectMode.Item,
@@ -616,36 +654,66 @@ require("lazy").setup({
                     ['<C-e>'] = cmp.mapping.abort(),
                     -- Tab that brings up the menu only when I hit tab
                     ["<Tab>"] = cmp.mapping(function(fallback)
-                        if has_words_before() and not cmp.visible() then
+                        if cmp.visible() then
                             cmp.select_next_item()
-                            cmp.complete()
+                        elseif snippy.can_expand_or_advance() then
+                            snippy.expand_or_advance()
                         elseif has_words_before() then
-                            cmp.select_next_item()
+                            cmp.complete()
                         else
-                            fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
+                            fallback()
                         end
                     end, { "i", "s" }),
+
                     ["<S-Tab>"] = cmp.mapping(function(fallback)
-                        if not cmp.select_prev_item() then
-                            if has_words_before() then
-                                cmp.complete()
-                            else
-                                fallback()
-                            end
+                        if cmp.visible() then
+                            cmp.select_prev_item()
+                        elseif snippy.can_jump(-1) then
+                            snippy.previous()
+                        else
+                            fallback()
                         end
                     end, { "i", "s" }),
+                    -- ["<Tab>"] = cmp.mapping(function(fallback)
+                    --     if has_words_before() and not cmp.visible() then
+                    --         cmp.select_next_item()
+                    --         cmp.complete()
+                    --     elseif has_words_before() then
+                    --         cmp.select_next_item()
+                    --     else
+                    --         fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
+                    --     end
+                    -- end, { "i", "s" }),
+                    -- ["<S-Tab>"] = cmp.mapping(function(fallback)
+                    --     if not cmp.select_prev_item() then
+                    --         if has_words_before() then
+                    --             cmp.complete()
+                    --         else
+                    --             fallback()
+                    --         end
+                    --     end
+                    -- end, { "i", "s" }),
+                },
+                snippet = {
+                    expand = function(args)
+                        require 'snippy'.expand_snippet(args.body)
+                    end
                 },
                 sources = cmp.config.sources({
                     { name = 'nvim_lsp' },
-                }, {
+                    { name = 'snippy' },
                     { name = 'buffer' },
                 })
             })
         end,
     },
-
-    -- Other themes
-    { 'AlexvZyl/nordic.nvim',  lazy = true,  config = true },
+    {
+        "ray-x/lsp_signature.nvim",
+        opts = { floating_window = false },
+        config = function(_, opts)
+            require("lsp_signature").setup(opts)
+        end,
+    },
 }, {
     defaults = { lazy = false, version = nil },
     dev = { path = "C:/dev" },
@@ -694,6 +762,7 @@ keymap('n', '<C-h>', '<C-W>h', opts)
 keymap('n', '<C-j>', '<C-W>j', opts)
 keymap('n', '<C-k>', '<C-W>k', opts)
 keymap('n', '<C-l>', '<C-W>l', opts)
+keymap('n', '<C-s>', '<CMD>w<CR>', opts)
 
 keymap('n', '<Leader>wr', '<C-W>r', opts)
 keymap("n", "<Leader>e", vim.cmd.Lex, opts)
