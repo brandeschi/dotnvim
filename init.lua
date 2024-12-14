@@ -35,8 +35,8 @@ set.expandtab = true
 set.completeopt = { "menu", "menuone" }
 set.pumheight = 5
 set.mouse = "a"
-set.guicursor = ""
-set.guifont = "JetBrainsMono NF:h14"
+set.guicursor = "n:blinkwait1blinkon500-blinkoff500"
+set.guifont = "Code New Roman:h14"
 set.number = true
 set.autoindent = true
 set.smartindent = true
@@ -58,9 +58,10 @@ set.sidescrolloff = 8
 vim.g.cursorhold_updatetime = 100
 
 -- Diag Config
-vim.diagnostic.config({
-    virtual_text = false,
-})
+vim.diagnostic.disable()
+-- vim.diagnostic.config({
+--     virtual_text = false,
+-- })
 
 local wrap = function(func, ...)
     local args = { ... }
@@ -76,39 +77,13 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 
 -- Plugins
 require("lazy").setup({
-    -- {
-    --     'brandeschi/medieval.nvim',
-    --     lazy = false,
-    --     priority = 1000,
-    --     dev = true,
-    --     config = function()
-    --         vim.cmd("colorscheme medieval")
-    --     end,
-    -- },
     {
-        'arcticicestudio/nord-vim',
+        'brandeschi/medieval.nvim',
         lazy = false,
         priority = 1000,
+        dev = true,
         config = function()
-          vim.api.nvim_create_augroup('nord-theme-overrides', {
-            clear = true
-          })
-          vim.api.nvim_create_autocmd('ColorScheme', {
-            callback = function()
-              vim.api.nvim_set_hl(0, "@keyword.repeat", { fg = "#EBCB8B" })
-              vim.api.nvim_set_hl(0, "@keyword.conditional", { fg = "#EBCB8B" })
-              vim.api.nvim_set_hl(0, "@keyword.directive", { fg = "#EBCB8B" })
-              vim.api.nvim_set_hl(0, "@keyword.operator", { fg = "#88C0D0" })
-              vim.api.nvim_set_hl(0, "@tag.builtin", { fg = "#88C0D0" })
-              vim.api.nvim_set_hl(0, "@tag.delimiter", { fg = "#ECEFF4" })
-              vim.api.nvim_set_hl(0, "@tag.attribute", { fg = "#5E81AC" })
-              vim.api.nvim_set_hl(0, "@tag", { fg = "#8FBCBB" })
-              vim.api.nvim_set_hl(0, "@lsp.type.property", { fg = "#5E81AC" })
-              vim.api.nvim_set_hl(0, "Constant", { fg = "#B48EAD" })
-              vim.api.nvim_set_hl(0, "TodoFgNOTE", { fg = "#4C566A" })
-            end
-          })
-          vim.cmd.colorscheme('nord')
+            vim.cmd("colorscheme medieval")
         end,
     },
     'nvim-lua/plenary.nvim', -- Useful lua functions used by lots of plugins
@@ -207,11 +182,11 @@ require("lazy").setup({
             require('mason-lspconfig').setup {
                 ensure_installed = vim.tbl_keys(servers),
             }
-            local capabilities = require('cmp_nvim_lsp').default_capabilities()
+            -- local capabilities = require('cmp_nvim_lsp').default_capabilities()
             require('mason-lspconfig').setup_handlers {
                 function(server_name)
                     require('lspconfig')[server_name].setup({
-                        capabilities = capabilities,
+                        -- capabilities = capabilities,
                         on_attach = on_attach,
                         settings = servers[server_name],
                         handlers = handlers,
@@ -268,47 +243,47 @@ require("lazy").setup({
     end
     },
     'jay-babu/mason-null-ls.nvim',
-    {
-        'rest-nvim/rest.nvim',
-        lazy = true,
-        event = "VeryLazy",
-        config = function()
-            require("rest-nvim").setup({
-                -- Open request results in a horizontal split
-                result_split_horizontal = false,
-                -- Keep the http file buffer above|left when split horizontal|vertical
-                result_split_in_place = false,
-                -- Skip SSL verification, useful for unknown certificates
-                skip_ssl_verification = false,
-                -- Encode URL before making request
-                encode_url = true,
-                -- Highlight request on run
-                highlight = {
-                    enabled = true,
-                    timeout = 150,
-                },
-                result = {
-                    -- toggle showing URL, HTTP info, headers at top the of result window
-                    show_url = true,
-                    show_http_info = true,
-                    show_headers = true,
-                    -- executables or functions for formatting response body [optional]
-                    -- set them to false if you want to disable them
-                    formatters = {
-                        json = "jq",
-                        html = function(body)
-                            return vim.fn.system({ "tidy", "-i", "-q", "-" }, body)
-                        end
-                    },
-                },
-                -- Jump to request line on run
-                jump_to_request = false,
-                env_file = '.env',
-                custom_dynamic_variables = {},
-                yank_dry_run = true,
-            })
-        end
-    },
+    -- {
+    --     'rest-nvim/rest.nvim',
+    --     lazy = true,
+    --     event = "VeryLazy",
+    --     config = function()
+    --         require("rest-nvim").setup({
+    --             -- Open request results in a horizontal split
+    --             result_split_horizontal = false,
+    --             -- Keep the http file buffer above|left when split horizontal|vertical
+    --             result_split_in_place = false,
+    --             -- Skip SSL verification, useful for unknown certificates
+    --             skip_ssl_verification = false,
+    --             -- Encode URL before making request
+    --             encode_url = true,
+    --             -- Highlight request on run
+    --             highlight = {
+    --                 enabled = true,
+    --                 timeout = 150,
+    --             },
+    --             result = {
+    --                 -- toggle showing URL, HTTP info, headers at top the of result window
+    --                 show_url = true,
+    --                 show_http_info = true,
+    --                 show_headers = true,
+    --                 -- executables or functions for formatting response body [optional]
+    --                 -- set them to false if you want to disable them
+    --                 formatters = {
+    --                     json = "jq",
+    --                     html = function(body)
+    --                         return vim.fn.system({ "tidy", "-i", "-q", "-" }, body)
+    --                     end
+    --                 },
+    --             },
+    --             -- Jump to request line on run
+    --             jump_to_request = false,
+    --             env_file = '.env',
+    --             custom_dynamic_variables = {},
+    --             yank_dry_run = true,
+    --         })
+    --     end
+    -- },
     {
         'nvim-treesitter/nvim-treesitter',
         config = function()
@@ -365,7 +340,6 @@ require("lazy").setup({
             }
         end
     },
-    { 'antoinemadec/FixCursorHold.nvim', lazy = true, event = "VeryLazy" }, -- This is needed to fix lsp doc highlight
     {
         'nvim-lualine/lualine.nvim',
         lazy = true,
@@ -375,24 +349,6 @@ require("lazy").setup({
             if not ll_status_ok then
                 return
             end
-            local lsp_active = {
-                function()
-                    local msg = 'No Active Lsp'
-                    local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
-                    local clients = vim.lsp.get_active_clients()
-                    if next(clients) == nil then
-                        return msg
-                    end
-                    for _, client in ipairs(clients) do
-                        local filetypes = client.config.filetypes
-                        if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
-                            return client.name
-                        end
-                    end
-                    return msg
-                end,
-                icon = ' LSP:',
-            }
             local mode = {
                 "mode",
                 fmt = function(str)
@@ -444,7 +400,7 @@ require("lazy").setup({
                     lualine_a = { branch },
                     lualine_b = { mode },
                     lualine_c = { "filename" },
-                    lualine_x = { lsp_active, spaces },
+                    lualine_x = { spaces },
                     lualine_y = {
                         {
                             require("lazy.status").updates,
@@ -621,92 +577,92 @@ require("lazy").setup({
             })
         end
     },
-    { "dcampos/nvim-snippy" },
-    {
-        "hrsh7th/nvim-cmp",
-        -- load cmp on InsertEnter
-        event = "InsertEnter",
-        -- these dependencies will only be loaded when cmp loads
-        -- dependencies are always lazy-loaded unless specified otherwise
-        dependencies = {
-            "hrsh7th/cmp-nvim-lsp",
-            "hrsh7th/cmp-buffer",
-            "dcampos/cmp-snippy"
-        },
-        config = function()
-            local has_words_before = function()
-                unpack = unpack or table.unpack
-                local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-                return col ~= 0 and
-                    vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-            end
-
-            local snippy = require("snippy")
-            local cmp = require('cmp')
-            cmp.setup({
-                preselect = cmp.PreselectMode.Item,
-                window = {
-                    completion = cmp.config.window.bordered(),
-                },
-                mapping = {
-                    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-                    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-                    ['<C-e>'] = cmp.mapping.abort(),
-                    -- Tab that brings up the menu only when I hit tab
-                    ["<Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_next_item()
-                        elseif snippy.can_expand_or_advance() then
-                            snippy.expand_or_advance()
-                        elseif has_words_before() then
-                            cmp.complete()
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-
-                    ["<S-Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_prev_item()
-                        elseif snippy.can_jump(-1) then
-                            snippy.previous()
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-                    -- ["<Tab>"] = cmp.mapping(function(fallback)
-                    --     if has_words_before() and not cmp.visible() then
-                    --         cmp.select_next_item()
-                    --         cmp.complete()
-                    --     elseif has_words_before() then
-                    --         cmp.select_next_item()
-                    --     else
-                    --         fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
-                    --     end
-                    -- end, { "i", "s" }),
-                    -- ["<S-Tab>"] = cmp.mapping(function(fallback)
-                    --     if not cmp.select_prev_item() then
-                    --         if has_words_before() then
-                    --             cmp.complete()
-                    --         else
-                    --             fallback()
-                    --         end
-                    --     end
-                    -- end, { "i", "s" }),
-                },
-                snippet = {
-                    expand = function(args)
-                        require 'snippy'.expand_snippet(args.body)
-                    end
-                },
-                sources = cmp.config.sources({
-                    { name = 'nvim_lsp' },
-                    { name = 'snippy' },
-                    { name = 'buffer' },
-                })
-            })
-        end,
-    },
+    -- { "dcampos/nvim-snippy" },
+    -- {
+    --     "hrsh7th/nvim-cmp",
+    --     -- load cmp on InsertEnter
+    --     event = "InsertEnter",
+    --     -- these dependencies will only be loaded when cmp loads
+    --     -- dependencies are always lazy-loaded unless specified otherwise
+    --     dependencies = {
+    --         "hrsh7th/cmp-nvim-lsp",
+    --         "hrsh7th/cmp-buffer",
+    --         "dcampos/cmp-snippy"
+    --     },
+    --     config = function()
+    --         local has_words_before = function()
+    --             unpack = unpack or table.unpack
+    --             local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+    --             return col ~= 0 and
+    --                 vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+    --         end
+    --
+    --         local snippy = require("snippy")
+    --         local cmp = require('cmp')
+    --         -- cmp.setup({
+    --         --     preselect = cmp.PreselectMode.Item,
+    --         --     window = {
+    --         --         completion = cmp.config.window.bordered(),
+    --         --     },
+    --         --     mapping = {
+    --         --         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+    --         --         ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    --         --         ['<C-e>'] = cmp.mapping.abort(),
+    --         --         -- Tab that brings up the menu only when I hit tab
+    --         --         ["<Tab>"] = cmp.mapping(function(fallback)
+    --         --             if cmp.visible() then
+    --         --                 cmp.select_next_item()
+    --         --             elseif snippy.can_expand_or_advance() then
+    --         --                 snippy.expand_or_advance()
+    --         --             elseif has_words_before() then
+    --         --                 cmp.complete()
+    --         --             else
+    --         --                 fallback()
+    --         --             end
+    --         --         end, { "i", "s" }),
+    --         --
+    --         --         ["<S-Tab>"] = cmp.mapping(function(fallback)
+    --         --             if cmp.visible() then
+    --         --                 cmp.select_prev_item()
+    --         --             elseif snippy.can_jump(-1) then
+    --         --                 snippy.previous()
+    --         --             else
+    --         --                 fallback()
+    --         --             end
+    --         --         end, { "i", "s" }),
+    --         --         -- ["<Tab>"] = cmp.mapping(function(fallback)
+    --         --         --     if has_words_before() and not cmp.visible() then
+    --         --         --         cmp.select_next_item()
+    --         --         --         cmp.complete()
+    --         --         --     elseif has_words_before() then
+    --         --         --         cmp.select_next_item()
+    --         --         --     else
+    --         --         --         fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
+    --         --         --     end
+    --         --         -- end, { "i", "s" }),
+    --         --         -- ["<S-Tab>"] = cmp.mapping(function(fallback)
+    --         --         --     if not cmp.select_prev_item() then
+    --         --         --         if has_words_before() then
+    --         --         --             cmp.complete()
+    --         --         --         else
+    --         --         --             fallback()
+    --         --         --         end
+    --         --         --     end
+    --         --         -- end, { "i", "s" }),
+    --         --     },
+    --         --     snippet = {
+    --         --         expand = function(args)
+    --         --             require 'snippy'.expand_snippet(args.body)
+    --         --         end
+    --         --     },
+    --         --     sources = cmp.config.sources({
+    --         --         { name = 'nvim_lsp' },
+    --         --         { name = 'snippy' },
+    --         --         { name = 'buffer' },
+    --         --     })
+    --         -- })
+    --     end,
+    -- },
     {
         "ray-x/lsp_signature.nvim",
         opts = { floating_window = false },
@@ -762,6 +718,8 @@ keymap('n', '<C-h>', '<C-W>h', opts)
 keymap('n', '<C-j>', '<C-W>j', opts)
 keymap('n', '<C-k>', '<C-W>k', opts)
 keymap('n', '<C-l>', '<C-W>l', opts)
+keymap('n', '<Leader>\\', '<C-W>|', opts)
+keymap('n', '<Leader>=', '<C-W>=', opts)
 keymap('n', '<C-s>', '<CMD>w<CR>', opts)
 
 keymap('n', '<Leader>wr', '<C-W>r', opts)
@@ -816,6 +774,16 @@ keymap("x", "<leader>p", [["_dP]])
 keymap({ "n", "v" }, "<leader>y", [["+y]])
 keymap("n", "<leader>Y", [["+Y]])
 keymap({ "n", "v" }, "<leader>d", [["_d]])
+
+-- Neovide
+if vim.g.neovide then
+	vim.api.nvim_set_keymap('v', '<sc-c>', '"+y', {noremap = true})
+	vim.api.nvim_set_keymap('n', '<sc-v>', 'l"+P', {noremap = true})
+	vim.api.nvim_set_keymap('v', '<sc-v>', '"+P', {noremap = true})
+	vim.api.nvim_set_keymap('c', '<sc-v>', '<C-o>l<C-o>"+<C-o>P<C-o>l', {noremap = true})
+	vim.api.nvim_set_keymap('i', '<sc-v>', '<ESC>l"+Pli', {noremap = true})
+	vim.api.nvim_set_keymap('t', '<sc-v>', '<C-\\><C-n>"+Pi', {noremap = true})
+end
 
 -- Autocmds
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
