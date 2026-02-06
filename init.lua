@@ -36,10 +36,11 @@ set.expandtab = true
 set.completeopt = { "menu", "menuone" }
 set.pumheight = 5
 set.mouse = "a"
-set.termguicolors = false
+set.termguicolors = true
 set.guicursor = "n:blinkwait1blinkon500-blinkoff500-Cursor,i:blinkon0-iCursor"
 -- set.guifont = "Code New Roman:h14"
-set.guifont = "Input:h12"
+-- set.guifont = "Input:h12"
+set.guifont = "CommitMono:h12"
 set.number = true
 set.autoindent = true
 set.smartindent = true
@@ -59,7 +60,7 @@ set.scrolloff = 8
 set.sidescrolloff = 8
 vim.g.cursorhold_updatetime = 100
 
-vim.diagnostic.disable()
+vim.diagnostic.enable(false, ...)
 
 local wrap = function(func, ...)
   local args = { ... }
@@ -70,14 +71,22 @@ end
 
 -- Plugins
 require("lazy").setup({
+  -- {
+  --   'brandeschi/medieval.nvim',
+  --   lazy = false,
+  --   priority = 1000,
+  --   dev = true,
+  --   config = function()
+  --     vim.cmd("colorscheme medieval")
+  --   end,
+  -- },
   {
-    'brandeschi/medieval.nvim',
+    "rebelot/kanagawa.nvim",
     lazy = false,
     priority = 1000,
-    dev = true,
     config = function()
-      vim.cmd("colorscheme medieval")
-    end,
+      require("kanagawa").load()
+    end
   },
   {
     'neovim/nvim-lspconfig',
@@ -131,7 +140,7 @@ require("lazy").setup({
           vim.lsp.buf.format()
         end, { desc = 'Format current buffer with LSP' })
 
-        -- Disable diags for clangd since it sucks at unity builds currently
+        -- Disable diags for clangd since it sucks at unity builds
         if client.name == 'clangd' then
           set.makeprg = ".\\build %:p:h"
         end
@@ -207,23 +216,13 @@ require("lazy").setup({
       --   },
       -- }
 
-
-      -- TODO: do all the things in a loop?
-      -- for key, val in pairs(test_table) do
-      --   print(key)
-      --   print('b')
-      --   print(vim.tbl_keys(val))
-      --   print('a')
-      --   if type(val) == "function" then
-      --     print("this a func")
-      --   end
-      -- end
       for lsp_name, value in pairs(lsps) do
-        require("lspconfig")[lsp_name].setup {
+        vim.lsp.config(lsp_name, {
           on_attach = on_attach,
           handlers = handlers,
           settings = lsps[lsp_name]
-        }
+        })
+        vim.lsp.enable(lsp_name)
       end
     end,
 
@@ -492,7 +491,7 @@ if vim.g.neovide then
   vim.api.nvim_set_keymap('i', '<sc-v>', '<ESC>l"+Pli', { noremap = true })
   vim.api.nvim_set_keymap('t', '<sc-v>', '<C-\\><C-n>"+Pi', { noremap = true })
 
-  vim.api.nvim_set_keymap('n', '<F11>', ":let g:neovide_fullscreen = !g:neovide_fullscreen<CR>", {})
+  vim.api.nvim_set_keymap('n', '<F11>', ":let g:neovide_fullscreen = !g:neovide_fullscreen<CR>", { silent = true })
 end
 
 -- Autocmds
