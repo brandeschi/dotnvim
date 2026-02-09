@@ -59,6 +59,7 @@ set.splitright = true
 set.scrolloff = 8
 set.sidescrolloff = 8
 vim.g.cursorhold_updatetime = 100
+vim.g.zenbones_compat = 1
 
 vim.diagnostic.enable(false, ...)
 
@@ -81,13 +82,30 @@ require("lazy").setup({
   --   end,
   -- },
   {
-    "rebelot/kanagawa.nvim",
+    'brandeschi/six.nvim',
     lazy = false,
     priority = 1000,
+    dev = true,
     config = function()
-      require("kanagawa").load()
-    end
+      require("six").load()
+      vim.cmd("colorscheme six")
+    end,
   },
+  -- {
+  --   "zenbones-theme/zenbones.nvim",
+  --   -- Optionally install Lush. Allows for more configuration or extending the colorscheme
+  --   -- If you don't want to install lush, make sure to set g:zenbones_compat = 1
+  --   -- In Vim, compat mode is turned on as Lush only works in Neovim.
+  --   dependencies = "rktjmp/lush.nvim",
+  --   lazy = false,
+  --   priority = 1000,
+  --   -- you can set set configuration options here
+  --   config = function()
+  --       -- vim.g.zenbones_darken_comments = 45
+  --     vim.g.darkness = "stark"
+  --     vim.cmd.colorscheme('zenbones')
+  --   end
+  -- },
   {
     'neovim/nvim-lspconfig',
     config = function()
@@ -339,7 +357,7 @@ require("lazy").setup({
           multiline_context = 10,          -- extra lines that will be re-evaluated when changing a line
           before = "",                     -- "fg" or "bg" or empty
           keyword = "wide",                -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
-          after = "fg",                    -- "fg" or "bg" or empty
+          after = "",                    -- "fg" or "bg" or empty
           pattern = [[.*<(KEYWORDS)\s*:]], -- pattern or table of patterns, used for highlightng (vim regex)
           comments_only = true,            -- uses treesitter to match keywords in comments only
           max_line_len = 400,              -- ignore lines longer than this
