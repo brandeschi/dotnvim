@@ -1,3 +1,2 @@
-# dotnvim
-## My Personal Neovim Config
+# dotnvim - Neovim Config (0.12)
 All in one file!
