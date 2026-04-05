@@ -49,6 +49,7 @@ vim.diagnostic.enable(false, ...)
 
 -- Plugins
 vim.pack.add({
+  -- vim.fn.expand("C:\\dev\\six.nvim\\colors\\six.lua"),
   "https://github.com/brandeschi/six.nvim",
   "https://github.com/nvim-mini/mini.nvim",
   "https://github.com/neovim/nvim-lspconfig",
@@ -59,9 +60,32 @@ vim.pack.add({
   "https://github.com/folke/todo-comments.nvim",
 })
 
+vim.cmd.packadd('nvim.undotree')
+
+-- TEMP
+-- vim.opt.rtp:prepend("C:/dev/six.nvim")
+
 -- Colorscheme
-require("six").load()
 vim.cmd("colorscheme six")
+
+-- vim.api.nvim_create_autocmd("BufWritePost", {
+--   -- Watch all lua files inside your local theme directory
+--   pattern = "C:/dev/six.nvim/*.lua",
+--   callback = function()
+--     -- 1. Clear the Lua module cache for your theme
+--     -- This ensures Neovim reads the fresh file instead of the cached one.
+--     -- Change "six" to the exact name used in your require() calls.
+--     package.loaded["six"] = nil
+--     package.loaded["six.palette"] = nil -- Clear submodules if you have them
+--     package.loaded["six.groups"] = nil -- Clear submodules if you have them
+--
+--     -- 2. Re-run the colorscheme command
+--     vim.cmd("colorscheme six")
+--
+--     -- Optional: Visual confirmation in the command line
+--     vim.notify("Six.nvim reloaded!", vim.log.levels.INFO)
+--   end,
+-- })
 
 -- Mini setups
 require("mini.comment").setup()
@@ -69,10 +93,6 @@ require("mini.pairs").setup()
 
 -- Treesitter
 require('nvim-treesitter').install { "c", "cpp", "lua", "vim" }
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = { "c", "cpp", "lua", "vim" },
-  callback = function() vim.treesitter.start() end,
-})
 
 -- LspConfig
 local on_attach = function(client, bufnr)
@@ -146,6 +166,7 @@ local lsps = {
       "--completion-style=detailed"
     },
   },
+  ts_ls = {},
 }
 
 for lsp_name, value in pairs(lsps) do
@@ -362,6 +383,10 @@ if vim.g.neovide then
 end
 
 -- Autocmds
+vim.api.nvim_create_autocmd('FileType', {
+    callback = function() pcall(vim.treesitter.start) end,
+})
+
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   callback = function()
     if not vim.o.binary and vim.o.filetype ~= 'diff' then
